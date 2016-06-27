@@ -1,0 +1,13 @@
+consumer_key: "Twitter consumer key"
+consumer_secret: "Twitter consumer secret"
+access_token: "Twitter access token"
+access_token_secret: "Twitter access token secret"
+
+banner_images: "/path/to/images/"
+
+# Or:
+#
+# banner_images:
+#     - /path/to/image1.jpg
+#     - /another/path/to/image2.jpg
+#

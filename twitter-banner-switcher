@@ -1,0 +1,52 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'twitter'
+require 'yaml'
+
+options = {
+    :config_path => File.join(ENV['HOME'], '.twitter-banner-switcher.yml')
+}
+
+OptionParser.new do |opt|
+    opt.on('--config CONFIG_PATH') { |o| options[:config_path] = o }
+end.parse!
+
+if !File.readable?(options[:config_path])
+    $stderr.puts "#{options[:config_path]} does not exist or is not readable"
+    exit 1
+end
+
+config = YAML.load(File.read(options[:config_path]))
+
+client = Twitter::REST::Client.new do |options|
+    options.consumer_key        = config['consumer_key']
+    options.consumer_secret     = config['consumer_secret']
+    options.access_token        = config['access_token']
+    options.access_token_secret = config['access_token_secret']
+end
+
+banner_images = []
+
+if config['banner_images']
+    if config['banner_images'].kind_of?(Array)
+        # banner_images is a list of paths
+        banner_images = config['banner_images']
+    else
+        # banner_images is a directory -- get the list of files inside
+        banner_images = Dir[File.join(config['banner_images'], '*')]
+    end
+else
+    $stderr.puts 'banner_images is not set'
+    exit 1
+end
+
+if banner_images.empty?
+    $stderr.puts 'No image files found'
+    exit 1
+end
+
+random_image = banner_images.sample
+
+banner64 = Base64.encode64(File.read(random_image))
+client.update_profile_banner(banner64)
